@@ -13,11 +13,14 @@ datasource db {
 }
 
 model Item {
-  id          String   @id @default(uuid())
-  name        String
-  type        String
-  quantity    Int
-  description String?
-  createdAt   DateTime @default(now())
-  ownerId     String
+  id                String   @id @default(uuid())
+  name              String
+  type              String
+  quantity          Int
+  description       String?
+  location          String?
+  lowStockThreshold Int?
+  photoUrl          String?
+  createdAt         DateTime @default(now())
+  ownerId           String
 }

@@ -3,6 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
 import { Auth } from "./Auth";
 import { Items } from "./Items";
+import "./App.css";
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -26,9 +27,11 @@ function App() {
   if (!session) return <Auth />;
 
   return (
-    <div>
-      <p>Logged in as {session.user.email}</p>
-      <button onClick={() => supabase.auth.signOut()}>Log Out</button>
+    <div className="app-shell">
+      <header className="app-header">
+        <p>Logged in as {session.user.email}</p>
+        <button onClick={() => supabase.auth.signOut()}>Log Out</button>
+      </header>
       <Items />
     </div>
   );

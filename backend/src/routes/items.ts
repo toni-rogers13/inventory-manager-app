@@ -15,7 +15,7 @@ itemsRouter.get("/", async (req, res) => {
 });
 
 itemsRouter.post("/", async (req, res) => {
-  const { name, type, quantity, description } = req.body;
+  const { name, type, quantity, description, location, lowStockThreshold, photoUrl } = req.body;
 
   if (!name || !type || quantity === undefined) {
     res.status(400).json({ error: "name, type, and quantity are required" });
@@ -23,14 +23,23 @@ itemsRouter.post("/", async (req, res) => {
   }
 
   const item = await prisma.item.create({
-    data: { name, type, quantity, description, ownerId: req.userId! },
+    data: {
+      name,
+      type,
+      quantity,
+      description,
+      location,
+      lowStockThreshold,
+      photoUrl,
+      ownerId: req.userId!,
+    },
   });
   res.status(201).json(item);
 });
 
 itemsRouter.put("/:id", async (req, res) => {
   const { id } = req.params;
-  const { name, type, quantity, description } = req.body;
+  const { name, type, quantity, description, location, lowStockThreshold, photoUrl } = req.body;
 
   const existing = await prisma.item.findUnique({ where: { id } });
   if (!existing || existing.ownerId !== req.userId) {
@@ -40,7 +49,7 @@ itemsRouter.put("/:id", async (req, res) => {
 
   const item = await prisma.item.update({
     where: { id },
-    data: { name, type, quantity, description },
+    data: { name, type, quantity, description, location, lowStockThreshold, photoUrl },
   });
   res.json(item);
 });

@@ -8,15 +8,21 @@ export type Item = {
   type: string;
   quantity: number;
   description: string | null;
+  location: string | null;
+  lowStockThreshold: number | null;
+  photoUrl: string | null;
   createdAt: string;
   ownerId: string;
 };
 
-export type NewItem = {
+export type ItemInput = {
   name: string;
   type: string;
   quantity: number;
   description?: string;
+  location?: string;
+  lowStockThreshold?: number;
+  photoUrl?: string;
 };
 
 async function authedFetch(path: string, options: RequestInit = {}) {
@@ -46,9 +52,17 @@ export const api = {
     return res.json();
   },
 
-  async createItem(item: NewItem): Promise<Item> {
+  async createItem(item: ItemInput): Promise<Item> {
     const res = await authedFetch("/items", {
       method: "POST",
+      body: JSON.stringify(item),
+    });
+    return res.json();
+  },
+
+  async updateItem(id: string, item: ItemInput): Promise<Item> {
+    const res = await authedFetch(`/items/${id}`, {
+      method: "PUT",
       body: JSON.stringify(item),
     });
     return res.json();

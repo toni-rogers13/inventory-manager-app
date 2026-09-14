@@ -19,7 +19,7 @@ export function Auth() {
   }
 
   return (
-    <div>
+    <div className="auth-card">
       <h2>Log in or sign up</h2>
       <input
         type="email"
