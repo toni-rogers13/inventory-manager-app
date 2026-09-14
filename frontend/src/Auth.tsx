@@ -5,38 +5,66 @@ export function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   async function handleSignUp() {
     setMessage(null);
-    const { error } = await supabase.auth.signUp({ email, password });
-    setMessage(error ? error.message : "Signed up! Check your email if confirmation is required.");
+    setLoading(true);
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: window.location.origin },
+    });
+    setLoading(false);
+
+    if (error) {
+      setMessage(error.message);
+    } else if (data.user && data.user.identities?.length === 0) {
+      // Supabase returns a "successful" response with no identities when the
+      // email is already registered, rather than an error (to avoid leaking
+      // which emails exist).
+      setMessage("That email is already registered — try logging in instead.");
+    } else {
+      setMessage("Signed up! Check your email if confirmation is required.");
+    }
   }
 
-  async function handleLogIn() {
+  async function handleLogIn(e: React.FormEvent) {
+    e.preventDefault();
     setMessage(null);
+    setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
     if (error) setMessage(error.message);
   }
 
   return (
     <div className="auth-card">
       <h2>Log in or sign up</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <div>
-        <button onClick={handleLogIn}>Log In</button>
-        <button onClick={handleSignUp}>Sign Up</button>
-      </div>
+      <form onSubmit={handleLogIn}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <div>
+          <button type="submit" disabled={loading}>
+            {loading ? "Please wait..." : "Log In"}
+          </button>
+          <button type="button" onClick={handleSignUp} disabled={loading}>
+            {loading ? "Please wait..." : "Sign Up"}
+          </button>
+        </div>
+      </form>
       {message && <p>{message}</p>}
     </div>
   );
