@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { supabase } from "./lib/supabase";
 
 export function Auth() {
@@ -6,8 +6,13 @@ export function Auth() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   async function handleSignUp() {
+    // Sign Up is a plain button, not a submit button, so it skips the
+    // form's native required-field validation — check it explicitly.
+    if (!formRef.current?.reportValidity()) return;
+
     setMessage(null);
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
@@ -41,7 +46,7 @@ export function Auth() {
   return (
     <div className="auth-card">
       <h2>Log in or sign up</h2>
-      <form onSubmit={handleLogIn}>
+      <form ref={formRef} onSubmit={handleLogIn}>
         <input
           type="email"
           placeholder="Email"
